@@ -18,6 +18,7 @@ llm = ChatGroq(
 )
 
 # GitHub API credentials
+repo_owner = "Suzain1"
 GITHUB_TOKEN = "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"  # Replace with your token or store it securely
 GITHUB_REPO = "streamlit_app"  # e.g., "username/repo_name"
 GITHUB_FILE_PATH = "username.csv"  # Path to the CSV file in the repo
