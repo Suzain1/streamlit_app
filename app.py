@@ -196,7 +196,7 @@ if choice == "🏠 Home":
     user_name = st.session_state.get("user_name", "User")
     st.markdown(f'<div class="header"> Women\'s Health !</div>', unsafe_allow_html=True)
     st.markdown('<div class="centered">', unsafe_allow_html=True)
-    st.image("C:\\Users\\suzai\\OneDrive\\Pictures\\Screenshots\\Screenshot 2024-11-30 202011.png", caption="Awareness is Key!", width=500)
+    st.image("Screenshot 2024-11-30 202011.png", caption="Awareness is Key!", width=500)
     st.markdown('</div>', unsafe_allow_html=True)
     st.markdown("""
         <div class="introduction-box">
@@ -219,7 +219,7 @@ if choice == "🏠 Home":
         </div>
         """, unsafe_allow_html=True)
     st.markdown('<div class="video-container">', unsafe_allow_html=True)
-    st.video("D:\\Breast_cancer_web\\practices.webm", format="video/mp4", start_time=0)
+    st.video("practices.webm", format="video/mp4", start_time=0)
     st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('<div class="footer">© 2024 Women\'s Health. All Rights Reserved.</div>', unsafe_allow_html=True)
 
@@ -230,13 +230,13 @@ elif choice == "🛠 Techniques":
     st.title("Breast Self Exam!")
     # Define image paths
     image_paths = [
-        "D:\\Breast_cancer_web\\ppt_image\\Slide1.PNG",
-        "D:\\Breast_cancer_web\\ppt_image\\Slide2.PNG",
-        "D:\\Breast_cancer_web\\ppt_image\\Slide3.PNG",
-        "D:\\Breast_cancer_web\\ppt_image\\Slide4.PNG",
-        "D:\\Breast_cancer_web\\ppt_image\\Slide5.PNG",
-        "D:\\Breast_cancer_web\\ppt_image\\Slide6.PNG",
-        "D:\\Breast_cancer_web\\ppt_image\\Slide7.PNG",
+        "Slide1.PNG",
+        "Slide2.PNG",
+        "Slide3.PNG",
+        "Slide4.PNG",
+        "Slide5.PNG",
+        "Slide6.PNG",
+        "Slide7.PNG",
     ]
 
     # Verify image files exist
