@@ -97,7 +97,7 @@ st.markdown("""
 # Helper Functions
 def save_user(name, email, password):
     """Save user credentials to CSV file."""
-    file_path = "D:\\Breast_cancer_web\\username.csv"
+    file_path = "username.csv"
     if not os.path.exists(file_path):
         pd.DataFrame(columns=["name", "email", "password"]).to_csv(file_path, index=False)
 
@@ -152,7 +152,7 @@ if choice == "🔑 Login/Signup":
     password = st.text_input("Password", type="password")
 
     def save_user(name, email, password):
-        file_path = "D:\\Breast_cancer_web\\username.csv"
+        file_path = "username.csv"
         if not os.path.exists(file_path):
             pd.DataFrame(columns=["name", "email", "password"]).to_csv(file_path, index=False)
 
@@ -165,7 +165,7 @@ if choice == "🔑 Login/Signup":
             st.success("User registered successfully! Please log in.")
 
     def verify_user(name, email, password):
-        file_path = "D:\\Breast_cancer_web\\username.csv"
+        file_path = "username.csv"
         if os.path.exists(file_path):
             user_data = pd.read_csv(file_path)
             for _, row in user_data.iterrows():
