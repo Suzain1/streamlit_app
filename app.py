@@ -17,14 +17,8 @@ llm = ChatGroq(
     model_name="llama-3.2-90b-vision-preview"  # Replace with a valid model name
 )
 
-load_dotenv()
-
-# Fetch the GitHub token securely
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-
-if not GITHUB_TOKEN:
-    raise ValueError("GitHub token not found. Please add it to the .env file.")
- # Replace with your token or store it securely
+# GitHub API credentials
+GITHUB_TOKEN = "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"  # Replace with your token or store it securely
 GITHUB_REPO = "streamlit_app"  # e.g., "username/repo_name"
 GITHUB_FILE_PATH = "username.csv"  # Path to the CSV file in the repo
 GITHUB_BRANCH = "main"  # Target branch
@@ -374,4 +368,3 @@ elif choice == "📞 Contact":
         - **Email**:
         - **Phone**:
     """)
-
