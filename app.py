@@ -2,9 +2,6 @@ import streamlit as st
 import pandas as pd
 import os
 import time
-import requests
-import base64
-import json
 from langchain_groq import ChatGroq
 from dotenv import load_dotenv
 
@@ -16,13 +13,6 @@ llm = ChatGroq(
     groq_api_key=os.getenv("GROQ_API_KEY"),
     model_name="llama-3.2-90b-vision-preview"  # Replace with a valid model name
 )
-
-# GitHub API credentials
-repo_owner = "Suzain1"
-GITHUB_TOKEN = "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"  # Replace with your token or store it securely
-GITHUB_REPO = "streamlit_app"  # e.g., "username/repo_name"
-GITHUB_FILE_PATH = "username.csv"  # Path to the CSV file in the repo
-GITHUB_BRANCH = "main"  # Target branch
 
 # Page Configuration
 st.set_page_config(
@@ -105,67 +95,25 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Helper Functions
-def get_github_file_content():
-    """Fetch the file content and SHA from GitHub."""
-    url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{GITHUB_FILE_PATH}?ref={GITHUB_BRANCH}"
-    headers = {"Authorization": f"token {GITHUB_TOKEN}"}
-    response = requests.get(url, headers=headers)
+def save_user(name, email, password):
+    """Save user credentials to CSV file."""
+    file_path = "D:\\Breast_cancer_web\\username.csv"
+    if not os.path.exists(file_path):
+        pd.DataFrame(columns=["name", "email", "password"]).to_csv(file_path, index=False)
 
-    if response.status_code == 200:
-        content = response.json()
-        file_content = base64.b64decode(content["content"]).decode("utf-8")
-        sha = content["sha"]
-        return file_content, sha
-    elif response.status_code == 404:
-        return "", None  # File does not exist
-    else:
-        st.error(f"Error fetching file content: {response.status_code}")
-        st.stop()
-
-def update_github_file(content, sha):
-    """Update the file on GitHub."""
-    url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{GITHUB_FILE_PATH}"
-    headers = {"Authorization": f"token {GITHUB_TOKEN}"}
-    data = {
-        "message": "Update user credentials",
-        "content": base64.b64encode(content.encode("utf-8")).decode("utf-8"),
-        "branch": GITHUB_BRANCH,
-    }
-    if sha:
-        data["sha"] = sha
-    response = requests.put(url, headers=headers, data=json.dumps(data))
-    if response.status_code not in (200, 201):
-        st.error(f"Error updating file: {response.status_code}")
-        st.stop()
-
-def save_user_to_github(name, email, password):
-    """Save user credentials to GitHub."""
-    content, sha = get_github_file_content()
-
-    # Load existing data or create new DataFrame
-    if content:
-        user_data = pd.read_csv(pd.compat.StringIO(content))
-    else:
-        user_data = pd.DataFrame(columns=["name", "email", "password"])
-
-    # Check if user already exists
+    user_data = pd.read_csv(file_path)
     if email in user_data["email"].values:
         st.warning("User already exists. Please log in.")
-        return
+    else:
+        new_user = pd.DataFrame({"name": [name], "email": [email], "password": [password]})
+        new_user.to_csv(file_path, mode="a", header=False, index=False)
+        st.success("User registered successfully! Please log in.")
 
-    # Append new user
-    new_user = pd.DataFrame({"name": [name], "email": [email], "password": [password]})
-    user_data = pd.concat([user_data, new_user], ignore_index=True)
-
-    # Convert DataFrame back to CSV and update on GitHub
-    updated_content = user_data.to_csv(index=False)
-    update_github_file(updated_content, sha)
-
-def verify_user_from_github(email, password):
-    """Verify user credentials from GitHub."""
-    content, _ = get_github_file_content()
-    if content:
-        user_data = pd.read_csv(pd.compat.StringIO(content))
+def verify_user(email, password):
+    """Verify user credentials from CSV file."""
+    file_path = "D:\\Breast_cancer_web\\username.csv"
+    if os.path.exists(file_path):
+        user_data = pd.read_csv(file_path)
         for _, row in user_data.iterrows():
             if (
                 row["email"].strip().lower() == email.strip().lower()
@@ -183,7 +131,7 @@ if "user_name" not in st.session_state:
 
 # Sidebar Navigation
 st.sidebar.title("Navigation")
-sections = ["🔑 Login/Signup", "🏠 Home", "🛠 Techniques", "🤖 AI Assistant", "📚 Resources", "📞 Contact"]
+sections = ["🔑 Login/Signup", "🏠 Home", "🛠 Techniques", "📚 Resources", "📞 Contact", "🤖 AI Assistant"]
 
 # Update current_page based on sidebar selection
 if st.session_state["current_page"] != "🔑 Login/Signup":  # Prevent navigation before login
@@ -203,21 +151,45 @@ if choice == "🔑 Login/Signup":
     email = st.text_input("Email")
     password = st.text_input("Password", type="password")
 
+    def save_user(name, email, password):
+        file_path = "D:\\Breast_cancer_web\\username.csv"
+        if not os.path.exists(file_path):
+            pd.DataFrame(columns=["name", "email", "password"]).to_csv(file_path, index=False)
+
+        user_data = pd.read_csv(file_path)
+        if email in user_data["email"].values:
+            st.warning("User already exists. Please log in.")
+        else:
+            new_user = pd.DataFrame({"name": [name], "email": [email], "password": [password]})
+            new_user.to_csv(file_path, mode="a", header=False, index=False)
+            st.success("User registered successfully! Please log in.")
+
+    def verify_user(name, email, password):
+        file_path = "D:\\Breast_cancer_web\\username.csv"
+        if os.path.exists(file_path):
+            user_data = pd.read_csv(file_path)
+            for _, row in user_data.iterrows():
+                if (
+                    row["name"].strip().lower() == name.strip().lower()
+                    and row["email"].strip().lower() == email.strip().lower()
+                    and row["password"].strip() == password.strip()
+                ):
+                    return True
+        return False
+
     if action == "Signup":
         if st.button("Sign Up"):
             if not name.strip():
                 st.warning("Name cannot be empty.")
             else:
-                save_user_to_github(name, email, password)
+                save_user(name, email, password)
     elif action == "Login":
         if st.button("Log In"):
-            if verify_user_from_github(email, password):
+            if verify_user(name, email, password):
                 st.session_state["user_name"] = name
                 st.session_state["current_page"] = "🏠 Home"  # Redirect to Home
             else:
-                st.error("Invalid email or password.")
-
-# Remaining Pages...
+                st.error("Invalid name, email, or password.")
 
 # Home Page
 if choice == "🏠 Home":
@@ -304,7 +276,7 @@ elif choice == "🛠 Techniques":
                 use_container_width=False,  # Set to False to allow manual size control
                 width=800,  # Set desired width for the images
             )
-            time.sleep(15)
+            time.sleep(5)
     else:
         # Display the current image statically
         placeholder.image(
@@ -316,6 +288,23 @@ elif choice == "🛠 Techniques":
 
 
 # Resources Page
+elif choice == "📚 Resources":
+    st.title("Resources")
+    st.markdown("""
+            Here are some valuable resources:
+            - [American Cancer Society](https://www.cancer.org)
+            - [Breastcancer.org](https://www.breastcancer.org)
+            - [World Health Organization](https://www.who.int)
+        """)
+
+
+# Contact Page
+elif choice == "📞 Contact":
+    st.title("Contact Us")
+    st.markdown("""
+        - **Email**:
+        - **Phone**:
+    """)
 
 # AI Assistant Page
 elif choice == "🤖 AI Assistant":
@@ -351,21 +340,3 @@ elif choice == "🤖 AI Assistant":
             except Exception as e:
                 error_message = f"An error occurred: {e}"
                 st.session_state.chat_history.append({"role": "assistant", "content": error_message})
-
-elif choice == "📚 Resources":
-    st.title("Resources")
-    st.markdown("""
-            Here are some valuable resources:
-            - [American Cancer Society](https://www.cancer.org)
-            - [Breastcancer.org](https://www.breastcancer.org)
-            - [World Health Organization](https://www.who.int)
-        """)
-
-
-# Contact Page
-elif choice == "📞 Contact":
-    st.title("Contact Us")
-    st.markdown("""
-        - **Email**:
-        - **Phone**:
-    """)
