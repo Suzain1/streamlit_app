@@ -111,7 +111,7 @@ def save_user(name, email, password):
 
 def verify_user(email, password):
     """Verify user credentials from CSV file."""
-    file_path = "D:\\Breast_cancer_web\\username.csv"
+    file_path = "username.csv"
     if os.path.exists(file_path):
         user_data = pd.read_csv(file_path)
         for _, row in user_data.iterrows():
