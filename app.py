@@ -273,8 +273,8 @@ elif choice == "🛠 Techniques":
             placeholder.image(
                 image_paths[st.session_state.current_image_index],
                 caption=f"Technique of Palpation ({st.session_state.current_image_index + 1}/{len(image_paths)})",
-                use_container_width=False,  # Set to False to allow manual size control
-                width=800,  # Set desired width for the images
+                use_container_width=True,  # Set to False to allow manual size control
+                #width=800,  # Set desired width for the images
             )
             time.sleep(5)
     else:
