@@ -218,13 +218,20 @@ if choice == "🏠 Home":
             </p>
         </div>
         """, unsafe_allow_html=True)
+    # Language selection for the video
     st.markdown('<div class="video-container">', unsafe_allow_html=True)
-    st.video("practices.webm", format="video/mp4", start_time=0)
+    st.write("Choose the language for the video:")
+    language = st.radio("", options=["Hindi", "Bengali"], horizontal=True)
+    if language == "Hindi":
+        video_path = "practices.webm"  # Hindi video path
+        st.video(video_path, format="video/mp4", start_time=0)
+    elif language == "Bengali":
+        video_path_bengali = "bse video bengali-comp.mp4"  # Bengali video path
+        st.video(video_path_bengali, format="video/mp4", start_time=0)
+        
     st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('<div class="footer">© 2024 Women\'s Health. All Rights Reserved.</div>', unsafe_allow_html=True)
 
-
-# Techniques Page
 # Techniques Page
 elif choice == "🛠 Techniques":
     st.title("Breast Self Exam!")
