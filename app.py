@@ -221,12 +221,12 @@ if choice == "🏠 Home":
     # Language selection for the video
     st.markdown('<div class="video-container">', unsafe_allow_html=True)
     st.write("Choose the language for the video:")
-    language = st.radio("", options=["Hindi", "Bengali"], horizontal=True)
-    if language == "Hindi":
-        video_path = "practices.webm"  # Hindi video path
+    language = st.radio("", options=["Bengali", "Hindi"], horizontal=True)
+    if language == "Bengali":
+        video_path = "bse video bengali-comp.mp4"  # Hindi video path
         st.video(video_path, format="video/mp4", start_time=0)
-    elif language == "Bengali":
-        video_path_bengali = "bse video bengali-comp.mp4"  # Bengali video path
+    elif language == "Hindi":
+        video_path_bengali = "practices.webm"  # Bengali video path
         st.video(video_path_bengali, format="video/mp4", start_time=0)
         
     st.markdown('</div>', unsafe_allow_html=True)
