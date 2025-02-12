@@ -4,7 +4,9 @@ import os
 import time
 from langchain_groq import ChatGroq
 from dotenv import load_dotenv
-
+import streamlit as st
+import json
+import os
 # Load environment variables
 load_dotenv()
 
@@ -94,36 +96,39 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Helper Functions
-def save_user(name, email, password):
-    """Save user credentials to CSV file."""
-    file_path = "D:\\Breast_cancer_web\\username.csv"
-    if not os.path.exists(file_path):
-        pd.DataFrame(columns=["name", "email", "password"]).to_csv(file_path, index=False)
 
-    user_data = pd.read_csv(file_path)
-    if email in user_data["email"].values:
+# Define the JSON file path
+USER_FILE = "users.json"
+
+# Helper function to load user data
+def load_users():
+    if not os.path.exists(USER_FILE):
+        return {}  # Return empty dict if file doesn't exist
+    with open(USER_FILE, "r") as file:
+        try:
+            return json.load(file)  # Load JSON data
+        except json.JSONDecodeError:
+            return {}  # Return empty if file is corrupted
+
+# Helper function to save user data
+def save_user(name, email, password):
+    users = load_users()
+    if email in users:
         st.warning("User already exists. Please log in.")
     else:
-        new_user = pd.DataFrame({"name": [name], "email": [email], "password": [password]})
-        new_user.to_csv(file_path, mode="a", header=False, index=False)
+        users[email] = {"name": name, "password": password}
+        with open(USER_FILE, "w") as file:
+            json.dump(users, file, indent=4)  # Save to JSON
         st.success("User registered successfully! Please log in.")
 
+# Helper function to verify user credentials
 def verify_user(email, password):
-    """Verify user credentials from CSV file."""
-    file_path = "D:\\Breast_cancer_web\\username.csv"
-    if os.path.exists(file_path):
-        user_data = pd.read_csv(file_path)
-        for _, row in user_data.iterrows():
-            if (
-                row["email"].strip().lower() == email.strip().lower()
-                and row["password"].strip() == password.strip()
-            ):
-                return True
-    return False
+    users = load_users()
+    if email in users and users[email]["password"] == password:
+        return users[email]["name"]  # Return user name if authenticated
+    return None
 
 # Sidebar Navigation
-# Initialize session state
 if "current_page" not in st.session_state:
     st.session_state["current_page"] = "🔑 Login/Signup"
 if "user_name" not in st.session_state:
@@ -133,104 +138,41 @@ if "user_name" not in st.session_state:
 st.sidebar.title("Navigation")
 sections = ["🔑 Login/Signup", "🏠 Home", "🛠 Techniques", "📚 Resources", "📞 Contact", "🤖 AI Assistant"]
 
-# Update current_page based on sidebar selection
-if st.session_state["current_page"] != "🔑 Login/Signup":  # Prevent navigation before login
+if st.session_state["current_page"] != "🔑 Login/Signup":
     selected_page = st.sidebar.radio("Go to", sections, index=sections.index(st.session_state["current_page"]))
     if selected_page != st.session_state["current_page"]:
         st.session_state["current_page"] = selected_page
 
-# Page Navigation Logic
-choice = st.session_state["current_page"]
-
 # Login/Signup Page
-if choice == "🔑 Login/Signup":
+if st.session_state["current_page"] == "🔑 Login/Signup":
     st.title("Login/Signup")
     action = st.selectbox("Choose Action", ["Login", "Signup"])
 
-    name = st.text_input("Name")
     email = st.text_input("Email")
     password = st.text_input("Password", type="password")
 
-    def save_user(name, email, password):
-        file_path = "D:\\Breast_cancer_web\\username.csv"
-        if not os.path.exists(file_path):
-            pd.DataFrame(columns=["name", "email", "password"]).to_csv(file_path, index=False)
-
-        user_data = pd.read_csv(file_path)
-        if email in user_data["email"].values:
-            st.warning("User already exists. Please log in.")
-        else:
-            new_user = pd.DataFrame({"name": [name], "email": [email], "password": [password]})
-            new_user.to_csv(file_path, mode="a", header=False, index=False)
-            st.success("User registered successfully! Please log in.")
-
-    def verify_user(name, email, password):
-        file_path = "D:\\Breast_cancer_web\\username.csv"
-        if os.path.exists(file_path):
-            user_data = pd.read_csv(file_path)
-            for _, row in user_data.iterrows():
-                if (
-                    row["name"].strip().lower() == name.strip().lower()
-                    and row["email"].strip().lower() == email.strip().lower()
-                    and row["password"].strip() == password.strip()
-                ):
-                    return True
-        return False
-
     if action == "Signup":
+        name = st.text_input("Name")
         if st.button("Sign Up"):
             if not name.strip():
                 st.warning("Name cannot be empty.")
             else:
                 save_user(name, email, password)
+
     elif action == "Login":
         if st.button("Log In"):
-            if verify_user(name, email, password):
-                st.session_state["user_name"] = name
+            user_name = verify_user(email, password)
+            if user_name:
+                st.session_state["user_name"] = user_name
                 st.session_state["current_page"] = "🏠 Home"  # Redirect to Home
             else:
-                st.error("Invalid name, email, or password.")
+                st.error("Invalid email or password.")
 
 # Home Page
-if choice == "🏠 Home":
+if st.session_state["current_page"] == "🏠 Home":
     user_name = st.session_state.get("user_name", "User")
-    st.markdown(f'<div class="header"> Women\'s Health !</div>', unsafe_allow_html=True)
-    st.markdown('<div class="centered">', unsafe_allow_html=True)
-    st.image("Screenshot 2024-11-30 202011.png", caption="Awareness is Key!", width=500)
-    st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown("""
-        <div class="introduction-box">
-            <h3>Introduction</h3>
-            <p>
-                Breast cancer is one of the most common cancers seen among women in the reproductive age group. With
-                an estimated 2.3 million cases every year, there are approximately 1.15 million people globally diagnosed
-                with breast cancer. It is further estimated that the global burden of breast cancer will be more than
-                2 million in 2030. In India, it was estimated in 2018 that breast cancer accounted for 32.8% of all
-                cancers in women between 25 and 49 years of age, with a mortality of 27.7%. The BSE is easy to perform
-                by oneself, cost-effective, and non-invasive, and recommended every month after the menstrual period.
-                BSE is one of the competencies every girl/woman has to learn. Moreover, you will be a healthcare
-                professional, so you are expected to do BSE yourself and impart health education to the general public
-                about BSE. At the preservice level, you might have anxiety and lack of confidence related to doing BSE
-                and have to gain confidence in performing BSE before you empower the general public. The virtual world
-                is being used increasingly in medical education and clinical practice. Your familiarity with the technology
-                can be considered essential while giving clinical skills to the general public. This project uses an
-                AI-assisted simulation to help you learn the procedure. We wish you a happy and fruitful learning!!
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-    # Language selection for the video
-    st.markdown('<div class="video-container">', unsafe_allow_html=True)
-    st.write("Choose the language for the video:")
-    language = st.radio("", options=["Bengali", "Hindi"], horizontal=True)
-    if language == "Bengali":
-        video_path = "bse video bengali-comp.mp4"  # Hindi video path
-        st.video(video_path, format="video/mp4", start_time=0)
-    elif language == "Hindi":
-        video_path_bengali = "practices.webm"  # Bengali video path
-        st.video(video_path_bengali, format="video/mp4", start_time=0)
-        
-    st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown('<div class="footer">© 2024 Women\'s Health. All Rights Reserved.</div>', unsafe_allow_html=True)
+    st.markdown(f"<h1>Welcome, {user_name}!</h1>", unsafe_allow_html=True)
+
 
 # Techniques Page
 elif choice == "🛠 Techniques":
